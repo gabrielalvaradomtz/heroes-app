@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormControl } from '@angular/forms';
 
-import { switchMap } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
 
 import { Publisher, Hero } from './../../interfaces/hero.interface';
 import { HeroesService } from './../../services/heroes.service';
@@ -90,6 +90,17 @@ export class NewPageComponent implements OnInit {
       data: this.heroForm.value,
     });
 
+    dialogRef.afterClosed()
+      .pipe(
+        filter( (result: boolean) => result ),
+        switchMap( () => this.heroesService.deleteHeroById( this.currentHero.id ) ),
+        tap( (wasDeleted: boolean) => wasDeleted ),
+      )
+      .subscribe(() => {
+        this.router.navigate([ '/heroes/' ]);
+    });
+
+    /*
     dialogRef.afterClosed().subscribe(result => {
       
       if ( !result ) return;
@@ -98,6 +109,7 @@ export class NewPageComponent implements OnInit {
       this.router.navigate([ '/heroes/' ]);
 
     });
+    */
 
   }
 
